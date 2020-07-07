@@ -54,7 +54,16 @@ class MySprite(pygame.sprite.Sprite):
 
     def move(self, dir):
         if dir == "Este":
-            self.rect.x += 10
+            self.rect.x += 5
+            self.rect.y += 0
+        elif dir == "Norte":
+            self.rect.x += 0
+            self.rect.y += -5
+        elif dir == "Sur":
+            self.rect.x += 0
+            self.rect.y += 5
+        elif dir == "Oeste":
+            self.rect.x += -5
             self.rect.y += 0
             # print(self.rect.x)
 
@@ -204,14 +213,20 @@ class MainRun(object):
         # Creamos los tanques
         p1 = self.generar_pos(tablero)
         p2 = self.generar_pos(tablero)
+        while p1 == p2:
+            p1 = self.generar_pos(tablero)
+            p2 = self.generar_pos(tablero)
+            
         t1 = tanques.Tank(1, "Rojo", 10, 10, p1)
         tablero[t1.get_x()][t1.get_y()] = t1.nombre
 
         t2 = tanques.Tank(2, "Rojo", 10, 10, p2)
         tablero[t2.get_x()][t2.get_y()] = t2.nombre
+        print("\n\n")
+        print(self.dibujar_tablero(tablero))
 
-        tank_1 = MySprite(p1[0], p1[1], self.tam_tablero, "sprites/tanque1\\*.png")
-        tank_2 = MySprite(p2[0], p2[1], self.tam_tablero, "sprites/tanque2\\*.png")
+        tank_1 = MySprite(p1[1], p1[0], self.tam_tablero, "sprites/tanque1\\*.png")
+        tank_2 = MySprite(p2[1], p2[0], self.tam_tablero, "sprites/tanque2\\*.png")
         g1 = pygame.sprite.Group(tank_1)
         g2 = pygame.sprite.Group(tank_2)
 
@@ -235,7 +250,7 @@ class MainRun(object):
         pool_t2 = cycle(t2.get_ins())
 
         pygame.time.set_timer(pygame.USEREVENT + 1, 0)
-        pygame.time.set_timer(pygame.USEREVENT + 2, 1000)
+        pygame.time.set_timer(pygame.USEREVENT + 2, 2500)
         while not stopped:
 
             for event in pygame.event.get():
@@ -245,13 +260,47 @@ class MainRun(object):
                 elif event.type == (pygame.USEREVENT + 2):
                     nom_tanque = next(pool_tanques).nombre
                     if nom_tanque == 1:
-                        print("Tanque 1: " + next(pool_t1))
-                        st.ins_exe = "Tanque 1: " + next(pool_t1)
+                        i1 = next(pool_t1)
+                        # print("Tanque 1: " + i1)
+                        st.ins_exe = "Tanque 1: " + i1
+                        pygame.time.set_timer(pygame.USEREVENT + 4, 0)
+                        pygame.time.set_timer(pygame.USEREVENT + 3, 120)
                         # time.sleep(1)
                     elif nom_tanque == 2:
-                        print("Tanque 2: " + next(pool_t2))
-                        st.ins_exe = "Tanque 2: " + next(pool_t1)
+                        i2 = next(pool_t2)
+                        # print("Tanque 2: " + i2)
+                        st.ins_exe = "Tanque 2: " + i2
+                        pygame.time.set_timer(pygame.USEREVENT + 3, 0)
+                        pygame.time.set_timer(pygame.USEREVENT + 4, 120)
                         # time.sleep(1)
+                elif event.type == (pygame.USEREVENT + 3):
+                    # Se supone que aqui iran las instrucciones del tanque 1
+                    if i1 == "mover(E)":
+
+                        tank_1.move("Este")
+                        g1.update()
+                    elif i1 == "mover(N)":
+                        tank_1.move("Norte")
+                        g1.update()
+                    elif i1 == "mover(S)":
+                        tank_1.move("Sur")
+                        g1.update()
+                    elif i1 == "mover(O)":
+                        tank_1.move("Oeste")
+                        g1.update()
+                elif event.type == (pygame.USEREVENT + 4):
+                    if i2 == "mover(E)":
+                        tank_2.move("Este")
+                        g2.update()
+                    elif i2 == "mover(N)":
+                        tank_2.move("Norte")
+                        g2.update()
+                    elif i2 == "mover(S)":
+                        tank_2.move("Sur")
+                        g2.update()
+                    elif i2 == "mover(O)":
+                        tank_2.move("Oeste")
+                        g2.update()
 
             window.fill(colors.BCK_COLOR)
             board.draw()
