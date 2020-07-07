@@ -123,19 +123,29 @@ class StatusUI(object):
         # Instrucciones por cada tanque
         self.ins_exe = "Nada en ejecución"
 
+    def barra_vida(self, n_player):
+        if n_player == 1:
+            pass
+        else:
+            pass
+
     def draw(self):
         # Contenedor de vida j1
         pygame.draw.rect(window, colors.RED_L, (0, 50, 180, 100))
         self.addText(self.player_1_name, 10, 60, colors.WHITE_M)
+        self.addText(self.player_1_life, 10, 100, colors.WHITE_M)
         # Contenedor de vida j2
         pygame.draw.rect(window, colors.GREEN_AQUA, (0, 160, 180, 100))
         self.addText(self.player_2_name, 10, 170, colors.WHITE_M)
+        self.addText(self.player_2_life, 10, 210, colors.WHITE_M)
         # Contenedor de minas j1 -- Lado derecho de la pantalla
         pygame.draw.rect(window, colors.ORANGE_M, (830, 50, 180, 100))
         self.addText(self.minas_j1_title, 835, 60, colors.WHITE_M)
+        self.addText(self.minas_j1_data, 835, 100, colors.WHITE_M)
         # Contenedor de minas j2
-        pygame.draw.rect(window, colors.ORANGE_M, (830, 50, 180, 100))
-        self.addText(self.minas_j2_title, 835, 60, colors.WHITE_M)
+        pygame.draw.rect(window, colors.ORANGE_M, (830, 160, 180, 100))
+        self.addText(self.minas_j2_title, 835, 170, colors.WHITE_M)
+        self.addText(self.minas_j2_data, 835, 210, colors.WHITE_M)
 
         # Mostrador de instrucciones
         self.addText(self.ins_exe, 200, 660, colors.WHITE_M)
