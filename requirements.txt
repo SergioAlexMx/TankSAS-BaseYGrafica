@@ -1,0 +1,3 @@
+glob3
+pygame
+pygame-menu
