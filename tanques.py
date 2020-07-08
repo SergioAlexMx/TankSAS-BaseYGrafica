@@ -10,6 +10,7 @@ class Tank:
         self.posicion = posicion
         self.dx = 0
         self.colisiono = False
+        self.mina_colisionada = 5
 
     def set_dx(self, dx):
         self.dx = dx

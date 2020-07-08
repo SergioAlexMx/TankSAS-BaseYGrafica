@@ -26,8 +26,9 @@ font_1 = pygame.font.SysFont('gillsans', 25)
 # Load sprites
 
 class Mina(object):
-    def __init__(self, x, y, board_size):
+    def __init__(self, id, x, y, board_size):
         b = Board(board_size)
+        self.id = id
         self.x = b.hi + 10 + 100 * (x)
         self.y = b.vi + 10 + 100 * (y)
         self.index = 0
@@ -198,10 +199,13 @@ class LogicBoard(object):
         self.dibujar_tablero()
         self.aux_x_t1 = -1
         self.aux_y_t1 = -1
+        self.aux_x_t2 = -1
+        self.aux_y_t2 = -1
         self.flag_mt1 = False
         self.flag_mt2 = False
         self.t1_m_id = 5
         self.t2_m_id = 10
+
     def update_pos(self):
         if self.n_tank == 2:
             self.tablero[self.tank_1.get_y()][self.tank_1.get_x()] = 1
@@ -232,7 +236,8 @@ class LogicBoard(object):
                         self.tablero[aux_y][aux_x] = 0
                         self.activate_mina(1)
                         return True
-                    elif self.tablero[self.tank_1.get_y()][self.tank_1.get_x() + 1] == 7:
+                    elif self.tablero[self.tank_1.get_y()][self.tank_1.get_x() + 1] > 5:
+                        self.tank_1.mina_colisionada = self.tablero[self.tank_1.get_y()][self.tank_1.get_x() + 1]
                         aux_x = self.tank_1.get_x()
                         aux_y = self.tank_1.get_y()
                         pt = (aux_x + 1, aux_y)
@@ -261,8 +266,9 @@ class LogicBoard(object):
                         self.tablero[aux_y][aux_x] = 0
                         self.activate_mina(1)
                         return True
-                    elif self.tablero[self.tank_1.get_y() - 1][self.tank_1.get_x()] == 7:
+                    elif self.tablero[self.tank_1.get_y() - 1][self.tank_1.get_x()] > 5:
                         # self.dibujar_tablero()
+                        self.tank_1.mina_colisionada = self.tablero[self.tank_1.get_y() - 1][self.tank_1.get_x()]
                         aux_x = self.tank_1.get_x()
                         aux_y = self.tank_1.get_y()
                         pt = (aux_x, aux_y - 1)
@@ -290,7 +296,8 @@ class LogicBoard(object):
                         self.tablero[aux_y][aux_x] = 0
                         self.activate_mina(1)
                         return True
-                    elif self.tablero[self.tank_1.get_y() + 1][self.tank_1.get_x()] == 7:
+                    elif self.tablero[self.tank_1.get_y() + 1][self.tank_1.get_x()] > 5:
+                        self.tank_1.mina_colisionada = self.tablero[self.tank_1.get_y() + 1][self.tank_1.get_x()]
                         # self.dibujar_tablero()
                         aux_x = self.tank_1.get_x()
                         aux_y = self.tank_1.get_y()
@@ -321,7 +328,8 @@ class LogicBoard(object):
                         self.tablero[aux_y][aux_x] = 0
                         self.activate_mina(1)
                         return True
-                    elif self.tablero[self.tank_1.get_y()][self.tank_1.get_x() - 1] == 7:
+                    elif self.tablero[self.tank_1.get_y()][self.tank_1.get_x() - 1] > 5:
+                        self.tank_1.mina_colisionada = self.tablero[self.tank_1.get_y()][self.tank_1.get_x() - 1]
                         # self.dibujar_tablero()
                         aux_x = self.tank_1.get_x()
                         aux_y = self.tank_1.get_y()
@@ -343,8 +351,10 @@ class LogicBoard(object):
         if t_n == 2:
             if dir == "Este":
                 if (self.tank_2.get_x() + 1) < self.size:
-                    if self.tablero[self.tank_2.get_y()][self.tank_2.get_x() + 1] == 0 or self.tablero[self.tank_2.get_y()][self.tank_2.get_x() + 1] == 8:
-                        ax = self.tablero[self.tank_2.get_y()][self.tank_2.get_x() + 1] == 7
+                    if self.tablero[self.tank_2.get_y()][self.tank_2.get_x() + 1] == 0 or \
+                            self.tablero[self.tank_2.get_y()][self.tank_2.get_x() + 1] > 5:
+                        ax_1 = self.tablero[self.tank_2.get_y()][self.tank_2.get_x() + 1]
+                        ax = self.tablero[self.tank_2.get_y()][self.tank_2.get_x() + 1] > 5
                         # self.dibujar_tablero()
                         aux_x = self.tank_2.get_x()
                         aux_y = self.tank_2.get_y()
@@ -352,7 +362,9 @@ class LogicBoard(object):
                         self.tank_2.posicion = pt
                         self.tablero[self.tank_2.get_y()][self.tank_2.get_x()] = 2
                         self.tablero[aux_y][aux_x] = 0
+                        self.activate_mina(2)
                         if ax:
+                            self.tank_2.mina_colisionada = ax_1
                             self.tank_2.reducir_vida(MINA_EXPLOTADO)
                             self.tank_2.colisiono = True
                         return True
@@ -362,9 +374,11 @@ class LogicBoard(object):
                     return False
             elif dir == "Norte":
                 if (self.tank_2.get_y() - 1) >= 0:
-                    if self.tablero[self.tank_2.get_y() - 1][self.tank_2.get_x()] == 0 or self.tablero[self.tank_2.get_y() - 1][self.tank_2.get_x()] == 7:
+                    if self.tablero[self.tank_2.get_y() - 1][self.tank_2.get_x()] == 0 or \
+                            self.tablero[self.tank_2.get_y() - 1][self.tank_2.get_x()] > 5:
                         # self.dibujar_tablero()
-                        ax = self.tablero[self.tank_2.get_y() - 1][self.tank_2.get_x()] == 7
+                        ax_1 = self.tablero[self.tank_2.get_y() - 1][self.tank_2.get_x()]
+                        ax = self.tablero[self.tank_2.get_y() - 1][self.tank_2.get_x()] > 5
                         aux_x = self.tank_2.get_x()
                         aux_y = self.tank_2.get_y()
                         pt = (aux_x, aux_y - 1)
@@ -372,7 +386,9 @@ class LogicBoard(object):
                         print(self.tank_2.get_x())
                         self.tablero[self.tank_2.get_y()][self.tank_2.get_x()] = 2
                         self.tablero[aux_y][aux_x] = 0
+                        self.activate_mina(2)
                         if ax:
+                            self.tank_2.mina_colisionada = ax_1
                             self.tank_2.reducir_vida(MINA_EXPLOTADO)
                             self.tank_2.colisiono = True
                         return True
@@ -382,9 +398,11 @@ class LogicBoard(object):
                     return False
             elif dir == "Sur":
                 if (self.tank_2.get_y() + 1) < self.size:
-                    if self.tablero[self.tank_2.get_y() + 1][self.tank_2.get_x()] == 0 or self.tablero[self.tank_2.get_y() + 1][self.tank_2.get_x()] == 7:
+                    if self.tablero[self.tank_2.get_y() + 1][self.tank_2.get_x()] == 0 or \
+                            self.tablero[self.tank_2.get_y() + 1][self.tank_2.get_x()] > 5:
                         # self.dibujar_tablero()
-                        ax = self.tablero[self.tank_2.get_y() + 1][self.tank_2.get_x()] == 7
+                        ax_1 = self.tablero[self.tank_2.get_y() + 1][self.tank_2.get_x()]
+                        ax = self.tablero[self.tank_2.get_y() + 1][self.tank_2.get_x()] > 5
                         aux_x = self.tank_2.get_x()
                         aux_y = self.tank_2.get_y()
                         pt = (aux_x, aux_y + 1)
@@ -392,7 +410,9 @@ class LogicBoard(object):
 
                         self.tablero[self.tank_2.get_y()][self.tank_2.get_x()] = 2
                         self.tablero[aux_y][aux_x] = 0
+                        self.activate_mina(2)
                         if ax:
+                            self.tank_2.mina_colisionada = ax_1
                             self.tank_2.reducir_vida(MINA_EXPLOTADO)
                             self.tank_2.colisiono = True
                         return True
@@ -402,9 +422,11 @@ class LogicBoard(object):
                     return False
             elif dir == "Oeste":
                 if (self.tank_2.get_x() - 1) >= 0:
-                    if self.tablero[self.tank_2.get_y()][self.tank_2.get_x() - 1] == 0 or self.tablero[self.tank_2.get_y()][self.tank_2.get_x() - 1] == 7:
+                    if self.tablero[self.tank_2.get_y()][self.tank_2.get_x() - 1] == 0 or \
+                            self.tablero[self.tank_2.get_y()][self.tank_2.get_x() - 1] > 5:
                         # self.dibujar_tablero()
-                        ax = self.tablero[self.tank_2.get_y()][self.tank_2.get_x() - 1] == 7
+                        ax_1 = self.tablero[self.tank_2.get_y()][self.tank_2.get_x() - 1]
+                        ax = self.tablero[self.tank_2.get_y()][self.tank_2.get_x() - 1] > 5
                         aux_x = self.tank_2.get_x()
                         aux_y = self.tank_2.get_y()
                         pt = (aux_x - 1, aux_y)
@@ -412,7 +434,9 @@ class LogicBoard(object):
 
                         self.tablero[self.tank_2.get_y()][self.tank_2.get_x()] = 2
                         self.tablero[aux_y][aux_x] = 0
+                        self.activate_mina(2)
                         if ax:
+                            self.tank_2.mina_colisionada = ax_1
                             self.tank_2.reducir_vida(MINA_EXPLOTADO)
                             self.tank_2.colisiono = True
                         return True
@@ -423,8 +447,19 @@ class LogicBoard(object):
 
     def activate_mina(self, t_n):
         if t_n == 1 and self.flag_mt1:
-            self.tablero[self.aux_y_t1][self.aux_x_t1] = 7
+            self.t1_m_id += 1
+            self.tablero[self.aux_y_t1][self.aux_x_t1] = self.t1_m_id
             self.flag_mt1 = False
+        elif t_n == 2 and self.flag_mt2:
+            self.t2_m_id += 1
+            self.tablero[self.aux_y_t2][self.aux_x_t2] = self.t2_m_id
+            self.flag_mt2 = False
+
+    def get_uid_mina(self, t_n):
+        if t_n == 1:
+            return self.t1_m_id + 1
+        elif t_n == 2:
+            return self.t2_m_id + 1
 
     def config_mina(self, t_n):
         if t_n == 1:
@@ -436,6 +471,47 @@ class LogicBoard(object):
                 return True
             else:
                 return False
+        elif t_n == 2:
+            if self.tank_2.n_minas > 0:
+                self.aux_x_t2 = self.tank_2.get_x()
+                self.aux_y_t2 = self.tank_2.get_y()
+                self.flag_mt2 = True
+                self.tank_2.n_minas = self.tank_2.n_minas - 1
+                return True
+            else:
+                return False
+
+    def radar(self, dir, t_n):
+        if t_n == 2:
+            if dir == "Norte":
+                ind = self.tank_2.get_y()
+                ind_found = -1
+                r = 0
+                for r in range(ind - 1, -1, -1):
+                    if 0 < self.tablero[int(r)][self.tank_2.get_x()] < 5:
+                        print("Jugador encontrado")
+                        ind_found = r
+                        break
+                if ind_found == -1:
+                    print("RESULTADO DE RADAR")
+                    ind_found = (self.tank_2.get_y() * -1)
+                print(ind_found)
+                return ind_found
+            elif dir == "Sur":
+                ind = self.tank_2.get_y()
+                ind_found = -1
+                r = 0
+                for r in range(ind + 1, self.size, 1):
+                    print(r)
+                    if 0 < self.tablero[int(r)][self.tank_2.get_x()] < 5:
+                        print("Jugador encontrado")
+                        ind_found = r
+                        break
+                if ind_found == -1:
+                    print("RESULTADO DE RADAR")
+                    ind_found = ((self.tank_2.get_y() + 1)  - self.size)
+                print(ind_found)
+                return ind_found
 
 
 class ExplosionSprite(pygame.sprite.Sprite):
@@ -566,14 +642,15 @@ class MainRun(object):
         pygame.time.set_timer(pygame.USEREVENT + 2, 2500)  # Detenido temporalmente 2500
         flag = False
         m = []
-        mina = Mina(-10, -10, self.tam_tablero)
+        mina = Mina(-1, -10, -10, self.tam_tablero)
         m.append(mina)
         m2 = []
-        mina = Mina(-10, -10, self.tam_tablero)
+        mina = Mina(-1, -10, -10, self.tam_tablero)
         m2.append(mina)
         mina.set_visible(False)
         mt1 = False
         mt2 = False
+        radar_px = 0
         while not stopped:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -598,15 +675,29 @@ class MainRun(object):
                             pygame.time.set_timer(pygame.USEREVENT + 3, 120)
                         elif i1 == "mina()" and lb.config_mina(1):
                             mt1 = True
-                            m.append(Mina(t1.get_x(), t1.get_y(), self.tam_tablero))
+                            print("Mina a guardar: " + str(lb.get_uid_mina(1)))
+                            m2.append(Mina(lb.get_uid_mina(1), t1.get_x(), t1.get_y(), self.tam_tablero))
+
                         if t1.colisiono:
                             # Botamos la mina y escondemos la original
-                            m.pop()
-                            m[-1].set_visible(True)
+                            # Datos guardados
+                            for i in m2:
+                                print(i.id)
+                            mqe = t1.mina_colisionada
+                            print("---------------------------------------1> " + str(mqe))
+                            indice = 0
+                            for i in m2:
+                                print(i.id)
+                                if mqe == i.id:
+                                    break
+                                indice += 1
+                            print("Indice : ---> " + str(indice))
+                            if indice is not 0:
+                                m2.pop(indice)
+                            # m[-1].set_visible(True)
                             # Generamos explosion
                             pygame.time.set_timer(pygame.USEREVENT + 6, 300)
                             t1.colisiono = False
-
 
                         print("\n")
                         lb.dibujar_tablero()
@@ -629,16 +720,37 @@ class MainRun(object):
                             pygame.time.set_timer(pygame.USEREVENT + 4, 120)
                         elif i2 == "mover(O)" and lb.mover_tanque(2, "Oeste"):
                             pygame.time.set_timer(pygame.USEREVENT + 4, 120)
-                        elif i2 == "mina()" and lb.config_mina(1):
+                        elif i2 == "radar(N)":
+                            radar_px = lb.radar("Norte", 2)
+                        elif i2 == "radar(S)":
+                            radar_px = lb.radar("Sur", 2)
+                        elif i2 == "radar(E)":
+                            radar_px = lb.radar("Este", 2)
+                        elif i2 == "radar(O)":
+                            radar_px = lb.radar("Oeste", 2)
+                        elif i2 == "mina()" and lb.config_mina(2):
                             mt2 = True
-                            m.append(Mina(t2.get_x(), t2.get_y(), self.tam_tablero))
-                        if t1.colisiono:
+                            print("Mina a guardar" + str(lb.get_uid_mina(2)))
+                            m2.append(Mina(lb.get_uid_mina(2), t2.get_x(), t2.get_y(), self.tam_tablero))
+                        if t2.colisiono:
                             # Botamos la mina y escondemos la original
-                            m.pop()
-                            m[-1].set_visible(True)
+                            # Datos guardados
+                            for i in m2:
+                                print(i.id)
+                            mqe = t2.mina_colisionada
+                            print("---------------------------------------2> " + str(mqe))
+                            indice = 0
+                            for i in m2:
+                                print(i.id)
+                                if mqe == i.id:
+                                    break
+                                indice += 1
+                            print("Indice : ---> " + str(indice))
+                            if indice is not 0:
+                                m2.pop(indice)
                             # Generamos explosion
                             pygame.time.set_timer(pygame.USEREVENT + 7, 300)
-                            t1.colisiono = False
+                            t2.colisiono = False
                         print("\n")
                         lb.dibujar_tablero()
                         # time.sleep(1)
@@ -677,13 +789,16 @@ class MainRun(object):
                         tank_2.move("Oeste")
                         g2.update(180)
                 elif event.type == (pygame.USEREVENT + 5):
-                    m[-1].set_visible(True)
+                    for o in m2:
+                        o.set_visible(True)
+
                 elif event.type == (pygame.USEREVENT + 6):
-                    print("Hola desde el evento 6")
+                    # print("Hola desde el evento 6")
                     exp_1.set_x(t1.get_x())
                     exp_1.set_y(t1.get_y())
                     exp_1.take_n_pos()
                     ge.update()
+
                 elif event.type == (pygame.USEREVENT + 7):
                     exp_1.set_x(t2.get_x())
                     exp_1.set_y(t2.get_y())
@@ -696,7 +811,8 @@ class MainRun(object):
             st.minas_j1_data = str(t1.n_minas)
             st.minas_j2_data = str(t2.n_minas)
             st.player_1_life = str(t1.vida) + "%"
-            for pp in m:
+            st.player_2_life = str(t2.vida) + "%"
+            for pp in m2:
                 pp.draw()
             g1.draw(window)
             g2.draw(window)
