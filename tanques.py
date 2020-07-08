@@ -25,10 +25,10 @@ class Tank:
         return self.aun_vivo
 
     def get_y(self):
-        return self.posicion[0]
+        return self.posicion[1]
 
     def get_x(self):
-        return self.posicion[1]
+        return self.posicion[0]
 
     def set_ins(self, ins):
         self.ins = ins
