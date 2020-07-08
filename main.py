@@ -226,16 +226,16 @@ class LogicBoard(object):
                 else:
                     return False
             elif dir == "Sur":
-                if (self.tank_1.get_y() + 1) <= self.size:
-                    if self.tablero[self.tank_1.get_x()][self.tank_1.get_y() + 1] == 0:
+                if (self.tank_1.get_y() + 1) < self.size:
+                    if self.tablero[self.tank_1.get_y() + 1][self.tank_1.get_x()] == 0:
                         # self.dibujar_tablero()
                         aux_x = self.tank_1.get_x()
                         aux_y = self.tank_1.get_y()
                         pt = (aux_x, aux_y + 1)
                         self.tank_1.posicion = pt
 
-                        self.tablero[self.tank_1.get_x()][self.tank_1.get_y()] = 1
-                        self.tablero[aux_x][aux_y] = 0
+                        self.tablero[self.tank_1.get_y()][self.tank_1.get_x()] = 1
+                        self.tablero[aux_y][aux_x] = 0
                         return True
                     else:
                         return False
@@ -293,16 +293,16 @@ class LogicBoard(object):
                 else:
                     return False
             elif dir == "Sur":
-                if (self.tank_2.get_y() + 1) <= self.size:
-                    if self.tablero[self.tank_2.get_x()][self.tank_2.get_y() + 2] == 0:
+                if (self.tank_2.get_y() + 1) < self.size:
+                    if self.tablero[self.tank_2.get_y() + 1][self.tank_2.get_x()] == 0:
                         # self.dibujar_tablero()
                         aux_x = self.tank_2.get_x()
                         aux_y = self.tank_2.get_y()
                         pt = (aux_x, aux_y + 1)
                         self.tank_2.posicion = pt
 
-                        self.tablero[self.tank_2.get_x()][self.tank_2.get_y()] = 2
-                        self.tablero[aux_x][aux_y] = 0
+                        self.tablero[self.tank_2.get_y()][self.tank_2.get_x()] = 2
+                        self.tablero[aux_y][aux_x] = 0
                         return True
                     else:
                         return False
@@ -434,6 +434,7 @@ class MainRun(object):
                         i1 = next(pool_t1)
                         # print("Tanque 1: " + i1)
                         st.ins_exe = "Tanque 1: " + i1
+                        pygame.time.set_timer(pygame.USEREVENT + 4, 0)
                         if i1 == "mover(E)" and t.mover_tanque(1, "Este"):
                             pygame.time.set_timer(pygame.USEREVENT + 3, 120)
                         elif i1 == "mover(N)" and t.mover_tanque(1, "Norte"):
@@ -442,7 +443,7 @@ class MainRun(object):
                             pygame.time.set_timer(pygame.USEREVENT + 3, 120)
                         elif i1 == "mover(O)" and t.mover_tanque(1, "Oeste"):
                             pygame.time.set_timer(pygame.USEREVENT + 3, 120)
-                        pygame.time.set_timer(pygame.USEREVENT + 4, 0)
+
                         print("\n")
                         t.dibujar_tablero()
                         # time.sleep(1)
@@ -450,6 +451,7 @@ class MainRun(object):
                         i2 = next(pool_t2)
                         # print("Tanque 2: " + i2)
                         st.ins_exe = "Tanque 2: " + i2
+                        pygame.time.set_timer(pygame.USEREVENT + 3, 0)
                         if i2 == "mover(E)" and t.mover_tanque(2, "Este"):
                             pygame.time.set_timer(pygame.USEREVENT + 4, 120)
                         elif i2 == "mover(N)" and t.mover_tanque(2, "Norte"):
@@ -458,7 +460,7 @@ class MainRun(object):
                             pygame.time.set_timer(pygame.USEREVENT + 4, 120)
                         elif i2 == "mover(O)" and t.mover_tanque(2, "Oeste"):
                             pygame.time.set_timer(pygame.USEREVENT + 4, 120)
-                        pygame.time.set_timer(pygame.USEREVENT + 3, 0)
+
                         print("\n")
                         t.dibujar_tablero()
                         # time.sleep(1)
