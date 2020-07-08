@@ -509,7 +509,7 @@ class LogicBoard(object):
                         break
                 if ind_found == -1:
                     print("RESULTADO DE RADAR")
-                    ind_found = ((self.tank_2.get_y() + 1)  - self.size)
+                    ind_found = ((self.tank_2.get_y() + 1) - self.size)
                 print(ind_found)
                 return ind_found
 
