@@ -110,7 +110,7 @@ class Board(object):
             pygame.draw.rect(window, colors.RED_H, (hi, i, 10, 90))
             pygame.draw.rect(window, colors.RED_H, (hf, i, 10, 90))
             for j in range(hi + 10, hf + 10, 100):
-                if c_par != 0:
+                if c_par is not 0:
                     pygame.draw.rect(window, colors.GRAY_L, (j, i, 90, 90))
                     c_par = 0
                     # self.addText("gray_l", j, i)
@@ -154,6 +154,11 @@ class StatusUI(object):
         self.minas_j2_data = "---"
         # Instrucciones por cada tanque
         self.ins_exe = "Nada en ejecución"
+        # px
+        self.px1_title = "Tanque 1 PX"
+        self.px2_title = "Tanque 2 PX"
+        self.px1_data = "--"
+        self.px2_data = "--"
 
     def barra_vida(self, n_player):
         if n_player == 1:
@@ -181,6 +186,15 @@ class StatusUI(object):
 
         # Mostrador de instrucciones
         self.addText(self.ins_exe, 200, 660, colors.WHITE_M)
+
+        # Contenedor de px 1
+        pygame.draw.rect(window, colors.NEGRO_T, (830, 270, 180, 100))
+        self.addText(self.px1_title, 835, 280, colors.WHITE_M)
+        self.addText(self.px1_data, 835, 320, colors.WHITE_M)
+
+        pygame.draw.rect(window, colors.NEGRO_T, (830, 380, 180, 100))
+        self.addText(self.px2_title, 835, 390, colors.WHITE_M)
+        self.addText(self.px2_data, 835, 430, colors.WHITE_M)
 
     def addText(self, txt, x, y, color=colors.NEGRO_F):
         window.blit(font_1.render(str(txt), True, color), (x, y))
@@ -488,6 +502,7 @@ class LogicBoard(object):
                 ind_found = -1
                 r = 0
                 for r in range(ind - 1, -1, -1):
+                    r += 1
                     if 0 < self.tablero[int(r)][self.tank_2.get_x()] < 5:
                         print("Jugador encontrado")
                         ind_found = r
@@ -510,6 +525,97 @@ class LogicBoard(object):
                 if ind_found == -1:
                     print("RESULTADO DE RADAR")
                     ind_found = ((self.tank_2.get_y() + 1) - self.size)
+                print(ind_found)
+                return ind_found
+            elif dir == "Este":
+                ind = self.tank_2.get_x()
+                ind_found = -1
+                c = 0
+                for r in range(ind + 1, self.size, 1):
+                    c += 1
+                    if 0 < self.tablero[self.tank_2.get_y()][r] < 5:
+                        print("Jugador encontrado")
+                        ind_found = c
+                        break
+                if ind_found == -1:
+                    print("RESULTADO DE RADAR")
+                    ind_found = ((self.tank_2.get_x() + 1) - self.size)
+                print(ind_found)
+                return ind_found
+            elif dir == "Oeste":
+                ind = self.tank_2.get_x()
+                ind_found = -1
+                r = 0
+                for r in range(ind - 1, -1, -1):
+                    r += 1
+                    if 0 < self.tablero[self.tank_2.get_y()][r] < 5:
+                        print("Jugador encontrado")
+                        ind_found = r
+                        break
+                if ind_found == -1:
+                    print("RESULTADO DE RADAR")
+                    ind_found = (self.tank_2.get_x() * -1)
+                print(ind_found)
+                return ind_found
+        if t_n == 1:
+            if dir == "Norte":
+                ind = self.tank_1.get_y()
+                ind_found = -1
+                r = 0
+                for r in range(ind - 1, -1, -1):
+                    r += 1
+                    if 0 < self.tablero[int(r)][self.tank_1.get_x()] < 5:
+                        print("Jugador encontrado")
+                        ind_found = r
+                        break
+                if ind_found == -1:
+                    print("RESULTADO DE RADAR")
+                    ind_found = (self.tank_1.get_y() * -1)
+                print(ind_found)
+                return ind_found
+            elif dir == "Sur":
+                ind = self.tank_1.get_y()
+                ind_found = -1
+                r = 0
+                for r in range(ind + 1, self.size, 1):
+                    print(r)
+                    if 0 < self.tablero[int(r)][self.tank_1.get_x()] < 5:
+                        print("Jugador encontrado")
+                        ind_found = r
+                        break
+                if ind_found == -1:
+                    print("RESULTADO DE RADAR")
+                    ind_found = ((self.tank_1.get_y() + 1) - self.size)
+                print(ind_found)
+                return ind_found
+            elif dir == "Este":
+                ind = self.tank_1.get_x()
+                ind_found = -1
+                c = 0
+                for r in range(ind + 1, self.size, 1):
+                    c += 1
+                    if 0 < self.tablero[self.tank_1.get_y()][r] < 5:
+                        print("Jugador encontrado")
+                        ind_found = c
+                        break
+                if ind_found == -1:
+                    print("RESULTADO DE RADAR")
+                    ind_found = ((self.tank_1.get_x() + 1) - self.size)
+                print(ind_found)
+                return ind_found
+            elif dir == "Oeste":
+                ind = self.tank_1.get_x()
+                ind_found = -1
+                r = 0
+                for r in range(ind - 1, -1, -1):
+                    r += 1
+                    if 0 < self.tablero[self.tank_1.get_y()][r] < 5:
+                        print("Jugador encontrado")
+                        ind_found = r
+                        break
+                if ind_found == -1:
+                    print("RESULTADO DE RADAR")
+                    ind_found = (self.tank_1.get_x() * -1)
                 print(ind_found)
                 return ind_found
 
@@ -650,7 +756,8 @@ class MainRun(object):
         mina.set_visible(False)
         mt1 = False
         mt2 = False
-        radar_px = 0
+        radar_px_1 = 0
+        radar_px_2 = 0
         while not stopped:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -673,6 +780,14 @@ class MainRun(object):
                             pygame.time.set_timer(pygame.USEREVENT + 3, 120)
                         elif i1 == "mover(O)" and lb.mover_tanque(1, "Oeste"):
                             pygame.time.set_timer(pygame.USEREVENT + 3, 120)
+                        elif i1 == "radar(N)":
+                            radar_px_1 = lb.radar("Norte", 1)
+                        elif i1 == "radar(S)":
+                            radar_px_1 = lb.radar("Sur", 1)
+                        elif i1 == "radar(E)":
+                            radar_px_1 = lb.radar("Este", 1)
+                        elif i1 == "radar(O)":
+                            radar_px_1 = lb.radar("Oeste", 1)
                         elif i1 == "mina()" and lb.config_mina(1):
                             mt1 = True
                             print("Mina a guardar: " + str(lb.get_uid_mina(1)))
@@ -721,13 +836,13 @@ class MainRun(object):
                         elif i2 == "mover(O)" and lb.mover_tanque(2, "Oeste"):
                             pygame.time.set_timer(pygame.USEREVENT + 4, 120)
                         elif i2 == "radar(N)":
-                            radar_px = lb.radar("Norte", 2)
+                            radar_px_2 = lb.radar("Norte", 2)
                         elif i2 == "radar(S)":
-                            radar_px = lb.radar("Sur", 2)
+                            radar_px_2 = lb.radar("Sur", 2)
                         elif i2 == "radar(E)":
-                            radar_px = lb.radar("Este", 2)
+                            radar_px_2 = lb.radar("Este", 2)
                         elif i2 == "radar(O)":
-                            radar_px = lb.radar("Oeste", 2)
+                            radar_px_2 = lb.radar("Oeste", 2)
                         elif i2 == "mina()" and lb.config_mina(2):
                             mt2 = True
                             print("Mina a guardar" + str(lb.get_uid_mina(2)))
@@ -812,6 +927,8 @@ class MainRun(object):
             st.minas_j2_data = str(t2.n_minas)
             st.player_1_life = str(t1.vida) + "%"
             st.player_2_life = str(t2.vida) + "%"
+            st.px1_data = str(radar_px_1)
+            st.px2_data = str(radar_px_2)
             for pp in m2:
                 pp.draw()
             g1.draw(window)
