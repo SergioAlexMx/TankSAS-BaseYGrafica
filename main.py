@@ -23,16 +23,13 @@ font_1 = pygame.font.SysFont('gillsans', 25)
 
 # Load sprites
 
-
-class MySprite(pygame.sprite.Sprite):
-    def __init__(self, x, y, board_size, images_path):
-        super(MySprite, self).__init__()
+class Mina(pygame.sprite.Sprite):
+    def __init__(self, x, y, board_size):
+        super(Mina, self).__init__()
         b = Board(board_size)
-        self.px = x
-        self.py = y
         self.x = b.hi + 10 + 100 * x
         self.y = b.vi + 10 + 100 * y
-        self.images = [pygame.image.load(img) for img in glob.glob(images_path)]
+        self.images = [pygame.image.load(img) for img in glob.glob("sprites/mina\\*.png")]
         self.index = 0
         self.rect = pygame.Rect(self.x, self.y, 90, 90)
         self.update()
@@ -41,6 +38,27 @@ class MySprite(pygame.sprite.Sprite):
         if self.index >= len(self.images):
             self.index = 0
         self.image = self.images[self.index]
+        self.index += 1
+
+
+class TankPlayer(pygame.sprite.Sprite):
+    def __init__(self, x, y, board_size, images_path):
+        super(TankPlayer, self).__init__()
+        b = Board(board_size)
+        self.px = x
+        self.py = y
+        self.x = b.hi + 10 + 100 * x
+        self.y = b.vi + 10 + 100 * y
+        self.images = [pygame.image.load(img) for img in glob.glob(images_path)]
+        self.index = 0
+        self.rect = pygame.Rect(self.x, self.y, 90, 90)
+        self.update(0)
+
+    def update(self, grad):
+        if self.index >= len(self.images):
+            self.index = 0
+        self.image = self.images[self.index]
+        self.image = pygame.transform.rotate(self.image, grad)
         self.index += 1
 
     def handle_event(self):
@@ -258,7 +276,6 @@ class LogicBoard(object):
                 else:
                     return False
 
-
         # ==============================================================================================================
         if t_n == 2:
             if dir == "Este":
@@ -326,7 +343,6 @@ class LogicBoard(object):
                     return False
 
 
-
 class MainRun(object):
     def __init__(self, dw, dh, tam_tablero=4):
         self.tam_tablero = tam_tablero
@@ -380,7 +396,7 @@ class MainRun(object):
         while p1 == p2:
             p1 = self.generar_pos(tablero)
             p2 = self.generar_pos(tablero)
-        print("----------> tanque1: "  + str(p1))
+        print("----------> tanque1: " + str(p1))
 
         t1 = tanques.Tank(1, "Rojo", 10, 10, p1)
         # tablero[t1.get_x()][t1.get_y()] = t1.nombre
@@ -392,8 +408,8 @@ class MainRun(object):
         # print(self.dibujar_tablero(tablero))
 
         # Definimos los sprites
-        tank_1 = MySprite(p1[0], p1[1], self.tam_tablero, "sprites/tanque1\\*.png")
-        tank_2 = MySprite(p2[0], p2[1], self.tam_tablero, "sprites/tanque2\\*.png")
+        tank_1 = TankPlayer(p1[0], p1[1], self.tam_tablero, "sprites/tanque1\\*.png")
+        tank_2 = TankPlayer(p2[0], p2[1], self.tam_tablero, "sprites/tanque2\\*.png")
 
         g1 = pygame.sprite.Group(tank_1)
         g2 = pygame.sprite.Group(tank_2)
@@ -468,29 +484,29 @@ class MainRun(object):
                     # Se supone que aqui iran las instrucciones del tanque 1
                     if i1 == "mover(E)":
                         tank_1.move("Este")
-                        g1.update()
+                        g1.update(0)
                     elif i1 == "mover(N)":
                         tank_1.move("Norte")
-                        g1.update()
+                        g1.update(90)
                     elif i1 == "mover(S)":
                         tank_1.move("Sur")
-                        g1.update()
+                        g1.update(270)
                     elif i1 == "mover(O)":
                         tank_1.move("Oeste")
-                        g1.update()
+                        g1.update(180)
                 elif event.type == (pygame.USEREVENT + 4):
                     if i2 == "mover(E)":
                         tank_2.move("Este")
-                        g2.update()
+                        g2.update(0)
                     elif i2 == "mover(N)":
                         tank_2.move("Norte")
-                        g2.update()
+                        g2.update(90)
                     elif i2 == "mover(S)":
                         tank_2.move("Sur")
-                        g2.update()
+                        g2.update(270)
                     elif i2 == "mover(O)":
                         tank_2.move("Oeste")
-                        g2.update()
+                        g2.update(180)
 
             window.fill(colors.BCK_COLOR)
             board.draw()
