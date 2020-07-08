@@ -16,6 +16,8 @@ display_w = 1000
 display_h = 700
 window = pygame.display.set_mode((display_w, display_h))
 
+# Constantes de vida
+MINA_EXPLOTADO = 30
 # clock
 window_clock = pygame.time.Clock()
 font_1 = pygame.font.SysFont('gillsans', 25)
@@ -23,22 +25,24 @@ font_1 = pygame.font.SysFont('gillsans', 25)
 
 # Load sprites
 
-class Mina(pygame.sprite.Sprite):
+class Mina(object):
     def __init__(self, x, y, board_size):
-        super(Mina, self).__init__()
         b = Board(board_size)
-        self.x = b.hi + 10 + 100 * x
-        self.y = b.vi + 10 + 100 * y
-        self.images = [pygame.image.load(img) for img in glob.glob("sprites/mina\\*.png")]
+        self.x = b.hi + 10 + 100 * (x)
+        self.y = b.vi + 10 + 100 * (y)
         self.index = 0
-        self.rect = pygame.Rect(self.x, self.y, 90, 90)
-        self.update()
+        self.image = pygame.image.load("sprites/mina/mina90.png").convert_alpha()
+        self.blanca = pygame.image.load("sprites/mina/image_blanca.png").convert_alpha()
+        self.flag = False
 
-    def update(self):
-        if self.index >= len(self.images):
-            self.index = 0
-        self.image = self.images[self.index]
-        self.index += 1
+    def draw(self):
+        if self.flag:
+            window.blit(self.image, (self.x, self.y))
+        else:
+            window.blit(self.blanca, (self.x, self.y))
+
+    def set_visible(self, flag):
+        self.flag = flag
 
 
 class TankPlayer(pygame.sprite.Sprite):
@@ -192,6 +196,10 @@ class LogicBoard(object):
         self.tablero = self.generar_tablero()
         self.update_pos()
         self.dibujar_tablero()
+        self.aux_x_t1 = -1
+        self.aux_y_t1 = -1
+        self.flag_mt1 = False
+        self.flag_mt2 = False
 
     def update_pos(self):
         if self.n_tank == 2:
@@ -221,6 +229,18 @@ class LogicBoard(object):
                         self.tank_1.posicion = pt
                         self.tablero[self.tank_1.get_y()][self.tank_1.get_x()] = 1
                         self.tablero[aux_y][aux_x] = 0
+                        self.activate_mina(1)
+                        return True
+                    elif self.tablero[self.tank_1.get_y()][self.tank_1.get_x() + 1] == 7:
+                        aux_x = self.tank_1.get_x()
+                        aux_y = self.tank_1.get_y()
+                        pt = (aux_x + 1, aux_y)
+                        self.tank_1.posicion = pt
+                        self.tablero[self.tank_1.get_y()][self.tank_1.get_x()] = 1
+                        self.tablero[aux_y][aux_x] = 0
+                        self.activate_mina(1)
+                        self.tank_1.reducir_vida(MINA_EXPLOTADO)
+                        self.tank_1.colisiono = True
                         return True
                     else:
                         return False
@@ -238,6 +258,19 @@ class LogicBoard(object):
                         self.tank_1.posicion = pt
                         self.tablero[self.tank_1.get_y()][self.tank_1.get_x()] = 1
                         self.tablero[aux_y][aux_x] = 0
+                        self.activate_mina(1)
+                        return True
+                    elif self.tablero[self.tank_1.get_y() - 1][self.tank_1.get_x()] == 7:
+                        # self.dibujar_tablero()
+                        aux_x = self.tank_1.get_x()
+                        aux_y = self.tank_1.get_y()
+                        pt = (aux_x, aux_y - 1)
+                        self.tank_1.posicion = pt
+                        self.tablero[self.tank_1.get_y()][self.tank_1.get_x()] = 1
+                        self.tablero[aux_y][aux_x] = 0
+                        self.activate_mina(1)
+                        self.tank_1.reducir_vida(MINA_EXPLOTADO)
+                        self.tank_1.colisiono = True
                         return True
                     else:
                         return False
@@ -254,7 +287,22 @@ class LogicBoard(object):
 
                         self.tablero[self.tank_1.get_y()][self.tank_1.get_x()] = 1
                         self.tablero[aux_y][aux_x] = 0
+                        self.activate_mina(1)
                         return True
+                    elif self.tablero[self.tank_1.get_y() + 1][self.tank_1.get_x()] == 7:
+                        # self.dibujar_tablero()
+                        aux_x = self.tank_1.get_x()
+                        aux_y = self.tank_1.get_y()
+                        pt = (aux_x, aux_y + 1)
+                        self.tank_1.posicion = pt
+
+                        self.tablero[self.tank_1.get_y()][self.tank_1.get_x()] = 1
+                        self.tablero[aux_y][aux_x] = 0
+                        self.activate_mina(1)
+                        self.tank_1.reducir_vida(MINA_EXPLOTADO)
+                        self.tank_1.colisiono = True
+                        return True
+
                     else:
                         return False
                 else:
@@ -270,6 +318,20 @@ class LogicBoard(object):
 
                         self.tablero[self.tank_1.get_y()][self.tank_1.get_x()] = 1
                         self.tablero[aux_y][aux_x] = 0
+                        self.activate_mina(1)
+                        return True
+                    elif self.tablero[self.tank_1.get_y()][self.tank_1.get_x() - 1] == 7:
+                        # self.dibujar_tablero()
+                        aux_x = self.tank_1.get_x()
+                        aux_y = self.tank_1.get_y()
+                        pt = (aux_x - 1, aux_y)
+                        self.tank_1.posicion = pt
+
+                        self.tablero[self.tank_1.get_y()][self.tank_1.get_x()] = 1
+                        self.tablero[aux_y][aux_x] = 0
+                        self.activate_mina(1)
+                        self.tank_1.reducir_vida(MINA_EXPLOTADO)
+                        self.tank_1.colisiono = True
                         return True
                     else:
                         return False
@@ -342,6 +404,24 @@ class LogicBoard(object):
                 else:
                     return False
 
+    def activate_mina(self, t_n):
+        if t_n == 1 and self.flag_mt1:
+            self.tablero[self.aux_y_t1][self.aux_x_t1] = 7
+            self.flag_mt1 = False
+
+    def config_mina(self, t_n):
+        if t_n == 1:
+            if self.tank_1.n_minas > 0:
+                self.aux_x_t1 = self.tank_1.get_x()
+                self.aux_y_t1 = self.tank_1.get_y()
+                self.flag_mt1 = True
+                self.tank_1.n_minas = self.tank_1.n_minas - 1
+                return True
+            else:
+                return False
+
+
+
 
 class MainRun(object):
     def __init__(self, dw, dh, tam_tablero=4):
@@ -398,11 +478,11 @@ class MainRun(object):
             p2 = self.generar_pos(tablero)
         print("----------> tanque1: " + str(p1))
 
-        t1 = tanques.Tank(1, "Rojo", 10, 10, p1)
+        t1 = tanques.Tank(1, "Rojo", 3, 10, p1)
         # tablero[t1.get_x()][t1.get_y()] = t1.nombre
 
         print("----------> tanque2: " + str(p2))
-        t2 = tanques.Tank(2, "Rojo", 10, 10, p2)
+        t2 = tanques.Tank(2, "Rojo", 3, 10, p2)
         # tablero[t2.get_x()][t2.get_y()] = t2.nombre
         print("\n\n")
         # print(self.dibujar_tablero(tablero))
@@ -413,10 +493,9 @@ class MainRun(object):
 
         g1 = pygame.sprite.Group(tank_1)
         g2 = pygame.sprite.Group(tank_2)
-
         # Definimos el tablero logico
         print("----------------------------------------")
-        t = LogicBoard(self.tam_tablero, 2, t1, t2)
+        lb = LogicBoard(self.tam_tablero, 2, t1, t2)
         # Seteamos las instrucciones por tanque
         t1.set_ins(tank1_dat)
         t2.set_ins(tank2_dat)
@@ -439,6 +518,11 @@ class MainRun(object):
         pygame.time.set_timer(pygame.USEREVENT + 1, 0)
         pygame.time.set_timer(pygame.USEREVENT + 2, 2500)  # Detenido temporalmente 2500
         flag = False
+        m = []
+        mina = Mina(-10, -10, self.tam_tablero)
+        m.append(mina)
+        mina.set_visible(False)
+        mt1 = False
         while not stopped:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -451,37 +535,48 @@ class MainRun(object):
                         # print("Tanque 1: " + i1)
                         st.ins_exe = "Tanque 1: " + i1
                         pygame.time.set_timer(pygame.USEREVENT + 4, 0)
-                        if i1 == "mover(E)" and t.mover_tanque(1, "Este"):
+                        if i1 == "mover(E)" and lb.mover_tanque(1, "Este"):
                             pygame.time.set_timer(pygame.USEREVENT + 3, 120)
-                        elif i1 == "mover(N)" and t.mover_tanque(1, "Norte"):
+                        elif i1 == "mover(N)" and lb.mover_tanque(1, "Norte"):
                             pygame.time.set_timer(pygame.USEREVENT + 3, 120)
-                        elif i1 == "mover(S)" and t.mover_tanque(1, "Sur"):
+                        elif i1 == "mover(S)" and lb.mover_tanque(1, "Sur"):
                             pygame.time.set_timer(pygame.USEREVENT + 3, 120)
-                        elif i1 == "mover(O)" and t.mover_tanque(1, "Oeste"):
+                        elif i1 == "mover(O)" and lb.mover_tanque(1, "Oeste"):
                             pygame.time.set_timer(pygame.USEREVENT + 3, 120)
+                        elif i1 == "mina()" and lb.config_mina(1):
+                            mt1 = True
+                            m.append(Mina(t1.get_x(), t1.get_y(), self.tam_tablero))
+                        if t1.colisiono:
+                            print("Se desactiva")
+                            m.pop()
+                            m[-1].set_visible(True)
+                            t1.colisiono = False
 
                         print("\n")
-                        t.dibujar_tablero()
+                        lb.dibujar_tablero()
                         # time.sleep(1)
                     elif nom_tanque == 2:
                         i2 = next(pool_t2)
                         # print("Tanque 2: " + i2)
                         st.ins_exe = "Tanque 2: " + i2
                         pygame.time.set_timer(pygame.USEREVENT + 3, 0)
-                        if i2 == "mover(E)" and t.mover_tanque(2, "Este"):
+                        if i2 == "mover(E)" and lb.mover_tanque(2, "Este"):
                             pygame.time.set_timer(pygame.USEREVENT + 4, 120)
-                        elif i2 == "mover(N)" and t.mover_tanque(2, "Norte"):
+                        elif i2 == "mover(N)" and lb.mover_tanque(2, "Norte"):
                             pygame.time.set_timer(pygame.USEREVENT + 4, 120)
-                        elif i2 == "mover(S)" and t.mover_tanque(2, "Sur"):
+                        elif i2 == "mover(S)" and lb.mover_tanque(2, "Sur"):
                             pygame.time.set_timer(pygame.USEREVENT + 4, 120)
-                        elif i2 == "mover(O)" and t.mover_tanque(2, "Oeste"):
+                        elif i2 == "mover(O)" and lb.mover_tanque(2, "Oeste"):
                             pygame.time.set_timer(pygame.USEREVENT + 4, 120)
 
                         print("\n")
-                        t.dibujar_tablero()
+                        lb.dibujar_tablero()
                         # time.sleep(1)
                 elif event.type == (pygame.USEREVENT + 3):
                     # Se supone que aqui iran las instrucciones del tanque 1
+                    if mt1:
+                        mt1 = False
+                        pygame.time.set_timer(pygame.USEREVENT + 5, 1)
                     if i1 == "mover(E)":
                         tank_1.move("Este")
                         g1.update(0)
@@ -507,10 +602,17 @@ class MainRun(object):
                     elif i2 == "mover(O)":
                         tank_2.move("Oeste")
                         g2.update(180)
+                elif event.type == (pygame.USEREVENT + 5):
+                    m[-1].set_visible(True)
 
             window.fill(colors.BCK_COLOR)
             board.draw()
             st.draw()
+            st.minas_j1_data = str(t1.n_minas)
+            st.minas_j2_data = str(t2.n_minas)
+            st.player_1_life = str(t1.vida) + "%"
+            for pp in m:
+                pp.draw()
             g1.draw(window)
             g2.draw(window)
             pygame.display.flip()

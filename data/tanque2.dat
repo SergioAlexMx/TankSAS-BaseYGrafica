@@ -1,4 +1,2 @@
-mover(N)
-mover(E)
 mover(S)
-mover(O)
+mina()

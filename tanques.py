@@ -9,6 +9,7 @@ class Tank:
         self.aun_vivo = True
         self.posicion = posicion
         self.dx = 0
+        self.colisiono = False
 
     def set_dx(self, dx):
         self.dx = dx

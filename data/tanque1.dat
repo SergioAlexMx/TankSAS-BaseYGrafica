@@ -1,6 +1,5 @@
+mina()
 mover(N)
 mover(S)
-mover(E)
-mover(O)
-mina() <--- deja mina, se activa en la siguiente posicion
-
+mover(S)
+mover(S)
