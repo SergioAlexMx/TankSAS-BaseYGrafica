@@ -163,6 +163,75 @@ class StatusUI(object):
         window.blit(font_1.render(str(txt), True, color), (x, y))
 
 
+class LogicBoard(object):
+    def __init__(self, size, n_tank, tank_1, tank_2, tank_3=None, tank_4=None):
+        self.size = size
+        self.n_tank = n_tank
+        self.tank_1 = tank_1
+        self.tank_2 = tank_2
+        self.tank_3 = tank_3
+        self.tank_4 = tank_4
+        self.tablero = self.generar_tablero()
+        self.update_pos()
+        self.dibujar_tablero()
+
+    def update_pos(self):
+        if self.n_tank == 2:
+            self.tablero[self.tank_1.get_x()][self.tank_1.get_y()] = 1
+            self.tablero[self.tank_2.get_x()][self.tank_2.get_y()] = 2
+
+    def generar_tablero(self):
+        numero_filas, numero_columnas = self.size, self.size
+        tablero = [0] * numero_filas
+        for i in range(numero_filas):
+            tablero[i] = [0] * numero_columnas
+        return tablero
+
+    def dibujar_tablero(self):
+        for c in self.tablero:
+            print(c)
+
+    def mover_tanque(self, t_n, dir):
+        if t_n == 1:
+            if dir == "Este":
+                print("T1-" + str(self.tank_1.get_x()))
+                print("T1-" + str((self.tank_1.get_x() + 1) < self.size))
+                # print("T1-" + str(self.tablero[self.tank_1.get_x()+1][self.tank_1.get_y()] == 0))
+                if (self.tank_1.get_x() + 1) < self.size:
+                    print("T1-" + str(self.tablero[self.tank_1.get_x() + 1][self.tank_1.get_y()] == 0))
+                    if self.tablero[self.tank_1.get_x() + 1][self.tank_1.get_y()] == 0:
+                        # self.dibujar_tablero()
+                        aux_x = self.tank_1.get_x()
+                        aux_y = self.tank_1.get_y()
+                        pt = (aux_y, aux_x + 1)
+                        self.tank_1.posicion = pt
+                        print(self.tank_1.get_x())
+                        self.tablero[self.tank_1.get_x()][self.tank_1.get_y()] = 1
+                        self.tablero[aux_x][aux_y] = 0
+                        return True
+                    else:
+                        return False
+                else:
+                    return False
+        if t_n == 2:
+            if dir == "Este":
+                if (self.tank_2.get_x() + 1) < self.size:
+                    if self.tablero[self.tank_2.get_x() + 1][self.tank_2.get_y()] == 0:
+                        # self.dibujar_tablero()
+                        aux_x = self.tank_2.get_x()
+                        aux_y = self.tank_2.get_y()
+                        pt = (aux_y, aux_x + 1)
+                        self.tank_2.posicion = pt
+                        print(self.tank_2.get_x())
+                        self.tablero[self.tank_2.get_x()][self.tank_2.get_y()] = 1
+                        self.tablero[aux_x][aux_y] = 0
+                        return True
+                    else:
+                        return False
+                else:
+                    return False
+
+
 class MainRun(object):
     def __init__(self, dw, dh, tam_tablero=4):
         self.tam_tablero = tam_tablero
@@ -216,14 +285,15 @@ class MainRun(object):
         while p1 == p2:
             p1 = self.generar_pos(tablero)
             p2 = self.generar_pos(tablero)
-            
+
         t1 = tanques.Tank(1, "Rojo", 10, 10, p1)
         tablero[t1.get_x()][t1.get_y()] = t1.nombre
 
         t2 = tanques.Tank(2, "Rojo", 10, 10, p2)
         tablero[t2.get_x()][t2.get_y()] = t2.nombre
         print("\n\n")
-        print(self.dibujar_tablero(tablero))
+        # print(self.dibujar_tablero(tablero))
+        t = LogicBoard(self.tam_tablero, 2, t1, t2)
 
         tank_1 = MySprite(p1[1], p1[0], self.tam_tablero, "sprites/tanque1\\*.png")
         tank_2 = MySprite(p2[1], p2[0], self.tam_tablero, "sprites/tanque2\\*.png")
@@ -250,9 +320,9 @@ class MainRun(object):
         pool_t2 = cycle(t2.get_ins())
 
         pygame.time.set_timer(pygame.USEREVENT + 1, 0)
-        pygame.time.set_timer(pygame.USEREVENT + 2, 2500)
+        pygame.time.set_timer(pygame.USEREVENT + 2, 2500)  # Detenido temporalmente
+        flag = False
         while not stopped:
-
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
@@ -263,20 +333,26 @@ class MainRun(object):
                         i1 = next(pool_t1)
                         # print("Tanque 1: " + i1)
                         st.ins_exe = "Tanque 1: " + i1
+                        if i1 == "mover(E)" and t.mover_tanque(1, "Este"):
+                            print("Entra-------------")
+                            pygame.time.set_timer(pygame.USEREVENT + 3, 120)
+
                         pygame.time.set_timer(pygame.USEREVENT + 4, 0)
-                        pygame.time.set_timer(pygame.USEREVENT + 3, 120)
+
+                        print("Hola desde el evento 2")
                         # time.sleep(1)
                     elif nom_tanque == 2:
                         i2 = next(pool_t2)
                         # print("Tanque 2: " + i2)
                         st.ins_exe = "Tanque 2: " + i2
+                        if i2 == "mover(E)" and t.mover_tanque(2, "Este"):
+                            print("Entra2-------------")
+                            pygame.time.set_timer(pygame.USEREVENT + 4, 120)
                         pygame.time.set_timer(pygame.USEREVENT + 3, 0)
-                        pygame.time.set_timer(pygame.USEREVENT + 4, 120)
                         # time.sleep(1)
                 elif event.type == (pygame.USEREVENT + 3):
                     # Se supone que aqui iran las instrucciones del tanque 1
                     if i1 == "mover(E)":
-
                         tank_1.move("Este")
                         g1.update()
                     elif i1 == "mover(N)":

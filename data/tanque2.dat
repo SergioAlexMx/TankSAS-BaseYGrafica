@@ -1,4 +1,4 @@
-mover(N)
 mover(E)
-mover(S)
-mover(O)
+mover(E)
+mover(E)
+mover(E)
