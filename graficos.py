@@ -18,6 +18,7 @@ window = pygame.display.set_mode((display_w, display_h))
 
 # Constantes de vida
 MINA_EXPLOTADO = 30
+DISPARO_DIRECTO = 15
 # clock
 window_clock = pygame.time.Clock()
 font_1 = pygame.font.SysFont('gillsans', 25)
@@ -168,11 +169,11 @@ class StatusUI(object):
 
     def draw(self):
         # Contenedor de vida j1
-        pygame.draw.rect(window, colors.RED_L, (0, 50, 180, 100))
+        pygame.draw.rect(window, colors.GREEN_AQUA, (0, 50, 180, 100))
         self.addText(self.player_1_name, 10, 60, colors.WHITE_M)
         self.addText(self.player_1_life, 10, 100, colors.WHITE_M)
         # Contenedor de vida j2
-        pygame.draw.rect(window, colors.GREEN_AQUA, (0, 160, 180, 100))
+        pygame.draw.rect(window, colors.RED_L, (0, 160, 180, 100))
         self.addText(self.player_2_name, 10, 170, colors.WHITE_M)
         self.addText(self.player_2_life, 10, 210, colors.WHITE_M)
         # Contenedor de minas j1 -- Lado derecho de la pantalla
@@ -500,12 +501,12 @@ class LogicBoard(object):
             if dir == "Norte":
                 ind = self.tank_2.get_y()
                 ind_found = -1
-                r = 0
+                c = 0
                 for r in range(ind - 1, -1, -1):
-                    r += 1
+                    c += 1
                     if 0 < self.tablero[int(r)][self.tank_2.get_x()] < 5:
                         print("Jugador encontrado")
-                        ind_found = r
+                        ind_found = c
                         break
                 if ind_found == -1:
                     print("RESULTADO DE RADAR")
@@ -515,12 +516,12 @@ class LogicBoard(object):
             elif dir == "Sur":
                 ind = self.tank_2.get_y()
                 ind_found = -1
-                r = 0
+                c = 0
                 for r in range(ind + 1, self.size, 1):
-                    print(r)
+                    c += 1
                     if 0 < self.tablero[int(r)][self.tank_2.get_x()] < 5:
                         print("Jugador encontrado")
-                        ind_found = r
+                        ind_found = c
                         break
                 if ind_found == -1:
                     print("RESULTADO DE RADAR")
@@ -545,12 +546,12 @@ class LogicBoard(object):
             elif dir == "Oeste":
                 ind = self.tank_2.get_x()
                 ind_found = -1
-                r = 0
+                c = 0
                 for r in range(ind - 1, -1, -1):
-                    r += 1
+                    c += 1
                     if 0 < self.tablero[self.tank_2.get_y()][r] < 5:
                         print("Jugador encontrado")
-                        ind_found = r
+                        ind_found = c
                         break
                 if ind_found == -1:
                     print("RESULTADO DE RADAR")
@@ -562,9 +563,9 @@ class LogicBoard(object):
                 ind = self.tank_1.get_y()
                 ind_found = -1
                 r = 0
-                for r in range(ind - 1, -1, -1):
+                for i in range(ind - 1, -1, -1):
                     r += 1
-                    if 0 < self.tablero[int(r)][self.tank_1.get_x()] < 5:
+                    if 0 < self.tablero[int(i)][self.tank_1.get_x()] < 5:
                         print("Jugador encontrado")
                         ind_found = r
                         break
@@ -606,18 +607,72 @@ class LogicBoard(object):
             elif dir == "Oeste":
                 ind = self.tank_1.get_x()
                 ind_found = -1
-                r = 0
+                c = 0
                 for r in range(ind - 1, -1, -1):
-                    r += 1
+                    c += 1
                     if 0 < self.tablero[self.tank_1.get_y()][r] < 5:
                         print("Jugador encontrado")
-                        ind_found = r
+                        ind_found = c
                         break
                 if ind_found == -1:
                     print("RESULTADO DE RADAR")
                     ind_found = (self.tank_1.get_x() * -1)
                 print(ind_found)
                 return ind_found
+
+    def dis_rect(self, dir, n_t):
+        if n_t == 1:
+            if dir == "Norte":
+                # Si hay un tanque...
+                r = self.radar("Norte", 1)
+                print("R: --> " + str(r))
+                if r > 0:
+                    self.tank_2.reducir_vida(DISPARO_DIRECTO)
+                return r
+            if dir == "Sur":
+                # Si hay un tanque...
+                r = self.radar("Sur", 1)
+                if r > 0:
+                    self.tank_2.reducir_vida(DISPARO_DIRECTO)
+                return r
+            if dir == "Este":
+                # Si hay un tanque...
+                r = self.radar("Este", 1)
+                if r >= 0:
+                    self.tank_2.reducir_vida(DISPARO_DIRECTO)
+                return r
+            if dir == "Oeste":
+                # Si hay un tanque...
+                r = self.radar("Oeste", 1)
+                if r > 0:
+                    self.tank_2.reducir_vida(DISPARO_DIRECTO)
+                return r
+        if n_t == 2:
+            if dir == "Norte":
+                # Si hay un tanque...
+                r = self.radar("Norte", 1)
+                if r > 0:
+                    self.tank_1.reducir_vida(DISPARO_DIRECTO)
+                return r
+            if dir == "Sur":
+                # Si hay un tanque...
+                r = self.radar("Sur", 1)
+                if r > 0:
+                    self.tank_1.reducir_vida(DISPARO_DIRECTO)
+                return r
+            if dir == "Este":
+                # Si hay un tanque...
+                r = self.radar("Este", 1)
+                if r > 0:
+                    self.tank_1.reducir_vida(DISPARO_DIRECTO)
+                return r
+            if dir == "Oeste":
+                # Si hay un tanque...
+                r = self.radar("Oeste", 1)
+                if r > 0:
+                    self.tank_1.reducir_vida(DISPARO_DIRECTO)
+                return r
+        pass
 
 
 class ExplosionSprite(pygame.sprite.Sprite):
@@ -647,6 +702,53 @@ class ExplosionSprite(pygame.sprite.Sprite):
             self.index = 0
         self.image = self.images[self.index]
         self.index += 1
+
+
+class DisparoSprite(pygame.sprite.Sprite):
+    def __init__(self, x, y, board_size):
+        super(DisparoSprite, self).__init__()
+        self.b = Board(board_size)
+        self.x = self.b.hi + 10 + 100 * x
+        self.y = self.b.vi + 10 + 100 * y
+        self.images = [pygame.image.load(img) for img in glob.glob("sprites/disparo\\*.png")]
+        self.index = 0
+        self.rect = pygame.Rect(self.x, self.y, 90, 90)
+        self.update(270)
+
+    def set_x(self, x):
+        self.x = self.b.hi + 10 + 100 * x
+
+    def set_y(self, y):
+        self.y = self.b.vi + 10 + 100 * y
+
+    def take_n_pos(self):
+        self.rect = pygame.Rect(self.x, self.y, 90, 90)
+
+    def ocultar_bala(self):
+        self.x = self.b.hi + 10 + 100 * -30
+        self.y = self.b.vi + 10 + 100 * -30
+        self.take_n_pos()
+
+    def update(self, angle):
+        if self.index >= len(self.images):
+            self.index = 0
+        self.image = self.images[self.index]
+        self.image = pygame.transform.rotate(self.image, angle)
+        self.index += 1
+
+    def move(self, dir):
+        if dir == "Este":
+            self.rect.x += 10
+            self.rect.y += 0
+        elif dir == "Norte":
+            self.rect.x += 0
+            self.rect.y += -10
+        elif dir == "Sur":
+            self.rect.x += 0
+            self.rect.y += 10
+        elif dir == "Oeste":
+            self.rect.x += -10
+            self.rect.y += 0
 
 
 class MainRun(object):
@@ -697,8 +799,10 @@ class MainRun(object):
         self.dibujar_tablero(tablero)
 
         # Creamos los tanques
-        p1 = self.generar_pos(tablero)
-        p2 = self.generar_pos(tablero)
+        # p1 = self.generar_pos(tablero)
+        # p2 = self.generar_pos(tablero)
+        p1 = (2, 4)
+        p2 = (2, 1)
         while p1 == p2:
             p1 = self.generar_pos(tablero)
             p2 = self.generar_pos(tablero)
@@ -758,6 +862,10 @@ class MainRun(object):
         mt2 = False
         radar_px_1 = 0
         radar_px_2 = 0
+        disparo = DisparoSprite(1, 1, self.tam_tablero)
+        disparo.ocultar_bala()
+        gdisparo = pygame.sprite.Group(disparo)
+        pos_disparo = "Norte"
         while not stopped:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -771,6 +879,7 @@ class MainRun(object):
                         st.ins_exe = "Tanque 1: " + i1
                         pygame.time.set_timer(pygame.USEREVENT + 4, 0)
                         pygame.time.set_timer(pygame.USEREVENT + 7, 0)
+                        pygame.time.set_timer(pygame.USEREVENT - 1, 0)
                         # pygame.time.set_timer(pygame.USEREVENT + 6, 0)
                         if i1 == "mover(E)" and lb.mover_tanque(1, "Este"):
                             pygame.time.set_timer(pygame.USEREVENT + 3, 120)
@@ -788,6 +897,47 @@ class MainRun(object):
                             radar_px_1 = lb.radar("Este", 1)
                         elif i1 == "radar(O)":
                             radar_px_1 = lb.radar("Oeste", 1)
+                        elif i1 == "disp_rect(N)":
+
+                            posicion_disparo = lb.dis_rect("Norte", 1)
+                            g1.update(90)
+                            disparo.set_x(t1.get_x())
+                            disparo.set_y(t1.get_y())
+                            disparo.take_n_pos()
+                            gdisparo.update(0)
+
+                            print("POS_DIR: " + str(posicion_disparo))
+                            pos_disparo = "Norte"
+                            pygame.time.set_timer(pygame.USEREVENT - 1, 60)
+
+                        elif i1 == "disp_rect(S)":
+                            posicion_disparo = lb.dis_rect("Sur", 1)
+                            print("POS_DIR: " + str(posicion_disparo))
+
+                            posicion_disparo = lb.dis_rect("Sur", 1)
+                            g1.update(270)
+                            disparo.set_x(t1.get_x())
+                            disparo.set_y(t1.get_y())
+                            disparo.take_n_pos()
+                            gdisparo.update(180)
+
+                            pos_disparo = "Sur"
+                            pygame.time.set_timer(pygame.USEREVENT - 1, 60)
+
+                        elif i1 == "disp_rect(E)":
+                            posicion_disparo = lb.dis_rect("Este", 1)
+                            print("POS_DIR: " + str(posicion_disparo))
+                            if posicion_disparo > 0:
+                                print("Se le dio a un tanque")
+                            else:
+                                print("Se le dio a una pared")
+                        elif i1 == "disp_rect(O)":
+                            posicion_disparo = lb.dis_rect("Oeste", 1)
+                            print("POS_DIR: " + str(posicion_disparo))
+                            if posicion_disparo > 0:
+                                print("Se le dio a un tanque")
+                            else:
+                                print("Se le dio a una pared")
                         elif i1 == "mina()" and lb.config_mina(1):
                             mt1 = True
                             print("Mina a guardar: " + str(lb.get_uid_mina(1)))
@@ -823,6 +973,8 @@ class MainRun(object):
                         st.ins_exe = "Tanque 2: " + i2
                         pygame.time.set_timer(pygame.USEREVENT + 3, 0)
                         # Ocultar explosion tanque 1 desde tanque 2
+                        pygame.time.set_timer(pygame.USEREVENT - 1, 0)
+                        pygame.time.set_timer(pygame.USEREVENT + 7, 0)
                         pygame.time.set_timer(pygame.USEREVENT + 6, 0)
                         exp_1.set_x(-10)
                         exp_1.set_y(-10)
@@ -843,6 +995,35 @@ class MainRun(object):
                             radar_px_2 = lb.radar("Este", 2)
                         elif i2 == "radar(O)":
                             radar_px_2 = lb.radar("Oeste", 2)
+                        elif i2 == "disp_rect(N)":
+                            posicion_disparo = lb.dis_rect("Norte", 2)
+                            print("POS_DIR: " + str(posicion_disparo))
+                            if posicion_disparo > 0:
+                                print("Se le dio a un tanque")
+                            else:
+                                print("Se le dio a una pared")
+                        elif i2 == "disp_rect(S)":
+                            posicion_disparo = lb.dis_rect("Sur", 2)
+                            print("POS_DIR: " + str(posicion_disparo))
+                            if posicion_disparo > 0:
+                                print("Se le dio a un tanque")
+                            else:
+                                print("Se le dio a una pared")
+                        elif i2 == "disp_rect(E)":
+                            posicion_disparo = lb.dis_rect("Este", 2)
+                            print("POS_DIR: " + str(posicion_disparo))
+                            if posicion_disparo > 0:
+                                print("Se le dio a un tanque")
+                            else:
+                                print("Se le dio a una pared")
+                        elif i2 == "disp_rect(O)":
+                            posicion_disparo = lb.dis_rect("Oeste", 2)
+                            print("POS_DIR: " + str(posicion_disparo))
+                            if posicion_disparo > 0:
+                                print("Se le dio a un tanque")
+                            else:
+                                print("Se le dio a una pared")
+
                         elif i2 == "mina()" and lb.config_mina(2):
                             mt2 = True
                             print("Mina a guardar" + str(lb.get_uid_mina(2)))
@@ -874,6 +1055,7 @@ class MainRun(object):
                     if mt1:
                         mt1 = False
                         pygame.time.set_timer(pygame.USEREVENT + 5, 1)
+
                     if i1 == "mover(E)":
                         tank_1.move("Este")
                         g1.update(0)
@@ -918,6 +1100,12 @@ class MainRun(object):
                     exp_1.set_y(t2.get_y())
                     exp_1.take_n_pos()
                     ge.update()
+                #  Choque con pared
+                elif event.type == (pygame.USEREVENT - 1):
+                    disparo.move(pos_disparo)
+                    if disparo.rect.x == tank_2.rect.x and disparo.rect.y == tank_2.rect.y:
+                        disparo.ocultar_bala()
+                        pygame.time.set_timer(pygame.USEREVENT + 7, 45)
 
             window.fill(colors.BCK_COLOR)
             board.draw()
@@ -933,7 +1121,7 @@ class MainRun(object):
             g1.draw(window)
             g2.draw(window)
             ge.draw(window)
-
+            gdisparo.draw(window)
             pygame.display.flip()
             pygame.display.update()
             window_clock.tick(60)
