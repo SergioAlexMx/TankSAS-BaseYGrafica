@@ -1,4 +1,7 @@
-radar(E)
-radar(S)
-mover(N)
-mover(E)
+disp_rect(N)
+disp_rect(N)
+disp_rect(N)
+disp_rect(N)
+disp_rect(N)
+disp_rect(N)
+

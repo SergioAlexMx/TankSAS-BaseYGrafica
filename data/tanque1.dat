@@ -1,4 +1,1 @@
-disp_rect(N)
-disp_rect(S)
-disp_rect(E)
-disp_rect(O)
+radar(E)

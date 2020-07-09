@@ -3,6 +3,7 @@ from itertools import cycle
 from random import randint
 
 import pygame
+import pygame_menu
 from pygame.constants import K_LEFT, K_RIGHT
 from pygame.time import set_timer
 
@@ -18,7 +19,7 @@ window = pygame.display.set_mode((display_w, display_h))
 
 # Constantes de vida
 MINA_EXPLOTADO = 30
-DISPARO_DIRECTO = 15
+DISPARO_DIRECTO = 30
 # clock
 window_clock = pygame.time.Clock()
 font_1 = pygame.font.SysFont('gillsans', 25)
@@ -650,25 +651,25 @@ class LogicBoard(object):
         if n_t == 2:
             if dir == "Norte":
                 # Si hay un tanque...
-                r = self.radar("Norte", 1)
+                r = self.radar("Norte", 2)
                 if r > 0:
                     self.tank_1.reducir_vida(DISPARO_DIRECTO)
                 return r
             if dir == "Sur":
                 # Si hay un tanque...
-                r = self.radar("Sur", 1)
+                r = self.radar("Sur", 2)
                 if r > 0:
                     self.tank_1.reducir_vida(DISPARO_DIRECTO)
                 return r
             if dir == "Este":
                 # Si hay un tanque...
-                r = self.radar("Este", 1)
+                r = self.radar("Este", 2)
                 if r > 0:
                     self.tank_1.reducir_vida(DISPARO_DIRECTO)
                 return r
             if dir == "Oeste":
                 # Si hay un tanque...
-                r = self.radar("Oeste", 1)
+                r = self.radar("Oeste", 2)
                 if r > 0:
                     self.tank_1.reducir_vida(DISPARO_DIRECTO)
                 return r
@@ -738,21 +739,23 @@ class DisparoSprite(pygame.sprite.Sprite):
 
     def move(self, dir):
         if dir == "Este":
-            self.rect.x += 10
+            self.rect.x += 20
             self.rect.y += 0
         elif dir == "Norte":
             self.rect.x += 0
-            self.rect.y += -10
+            self.rect.y += -20
         elif dir == "Sur":
             self.rect.x += 0
-            self.rect.y += 10
+            self.rect.y += 20
         elif dir == "Oeste":
-            self.rect.x += -10
+            self.rect.x += -20
             self.rect.y += 0
 
 
 class MainRun(object):
     def __init__(self, dw, dh, tam_tablero=4):
+        self.n1 = "Tanque 1"
+        self.n2 = "Tanque 2"
         self.tam_tablero = tam_tablero
         self.dw = dw
         self.dh = dh
@@ -770,6 +773,21 @@ class MainRun(object):
     def dibujar_tablero(self, mat):
         for c in mat:
             print(c)
+
+    def draw_ganador(self, ganador):
+        # Tema general
+        main_theme = pygame_menu.themes.THEME_ORANGE.copy()
+        # main_theme.title_background_color = (58, 58, 58)
+        main_theme.background_color = (0, 0, 0, 200)
+        main_theme.widget_font_color = (200, 200, 200)
+        # font_orb = pygame.font.Font("fonts/Orbitron-VariableFont_wght.ttf", 12)
+        main_theme.widget_font = pygame_menu.font.FONT_HELVETICA
+        main_theme.title_font = 'agencyfb'
+
+        # Menu principal
+        menuGanador = pygame_menu.Menu(300, 600, '¡TANK-SAS!', theme=main_theme)
+        menuGanador.add_label('Ganador del juego ' + str(ganador), font_size=40)
+        menuGanador.draw(window)
 
     def main(self):
         # Bandera para el while casi-inf
@@ -799,10 +817,12 @@ class MainRun(object):
         self.dibujar_tablero(tablero)
 
         # Creamos los tanques
-        # p1 = self.generar_pos(tablero)
-        # p2 = self.generar_pos(tablero)
-        p1 = (2, 4)
-        p2 = (2, 1)
+        p1 = self.generar_pos(tablero)
+        p2 = self.generar_pos(tablero)
+
+        # p1 = (2, 3)
+        # p2 = (2, 5)
+
         while p1 == p2:
             p1 = self.generar_pos(tablero)
             p2 = self.generar_pos(tablero)
@@ -866,8 +886,11 @@ class MainRun(object):
         disparo.ocultar_bala()
         gdisparo = pygame.sprite.Group(disparo)
         pos_disparo = "Norte"
+        tanque_disparador = 1
+
         while not stopped:
-            for event in pygame.event.get():
+            events = pygame.event.get()
+            for event in events:
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     exit()
@@ -880,6 +903,7 @@ class MainRun(object):
                         pygame.time.set_timer(pygame.USEREVENT + 4, 0)
                         pygame.time.set_timer(pygame.USEREVENT + 7, 0)
                         pygame.time.set_timer(pygame.USEREVENT - 1, 0)
+                        pygame.time.set_timer(pygame.USEREVENT + 6, 0)
                         # pygame.time.set_timer(pygame.USEREVENT + 6, 0)
                         if i1 == "mover(E)" and lb.mover_tanque(1, "Este"):
                             pygame.time.set_timer(pygame.USEREVENT + 3, 120)
@@ -898,7 +922,6 @@ class MainRun(object):
                         elif i1 == "radar(O)":
                             radar_px_1 = lb.radar("Oeste", 1)
                         elif i1 == "disp_rect(N)":
-
                             posicion_disparo = lb.dis_rect("Norte", 1)
                             g1.update(90)
                             disparo.set_x(t1.get_x())
@@ -907,6 +930,7 @@ class MainRun(object):
                             gdisparo.update(0)
 
                             print("POS_DIR: " + str(posicion_disparo))
+                            tanque_disparador = 1
                             pos_disparo = "Norte"
                             pygame.time.set_timer(pygame.USEREVENT - 1, 60)
 
@@ -921,23 +945,40 @@ class MainRun(object):
                             disparo.take_n_pos()
                             gdisparo.update(180)
 
+                            tanque_disparador = 1
                             pos_disparo = "Sur"
                             pygame.time.set_timer(pygame.USEREVENT - 1, 60)
 
                         elif i1 == "disp_rect(E)":
                             posicion_disparo = lb.dis_rect("Este", 1)
                             print("POS_DIR: " + str(posicion_disparo))
-                            if posicion_disparo > 0:
-                                print("Se le dio a un tanque")
-                            else:
-                                print("Se le dio a una pared")
+
+                            posicion_disparo = lb.dis_rect("Este", 1)
+                            g1.update(0)
+                            disparo.set_x(t1.get_x())
+                            disparo.set_y(t1.get_y())
+                            disparo.take_n_pos()
+                            gdisparo.update(270)
+
+                            tanque_disparador = 1
+                            pos_disparo = "Este"
+                            pygame.time.set_timer(pygame.USEREVENT - 1, 60)
+
                         elif i1 == "disp_rect(O)":
                             posicion_disparo = lb.dis_rect("Oeste", 1)
                             print("POS_DIR: " + str(posicion_disparo))
-                            if posicion_disparo > 0:
-                                print("Se le dio a un tanque")
-                            else:
-                                print("Se le dio a una pared")
+
+                            posicion_disparo = lb.dis_rect("Oeste", 1)
+                            g1.update(180)
+                            disparo.set_x(t1.get_x())
+                            disparo.set_y(t1.get_y())
+                            disparo.take_n_pos()
+                            gdisparo.update(90)
+
+                            tanque_disparador = 1
+                            pos_disparo = "Oeste"
+                            pygame.time.set_timer(pygame.USEREVENT - 1, 60)
+
                         elif i1 == "mina()" and lb.config_mina(1):
                             mt1 = True
                             print("Mina a guardar: " + str(lb.get_uid_mina(1)))
@@ -997,32 +1038,61 @@ class MainRun(object):
                             radar_px_2 = lb.radar("Oeste", 2)
                         elif i2 == "disp_rect(N)":
                             posicion_disparo = lb.dis_rect("Norte", 2)
+                            g2.update(90)
+                            disparo.set_x(t2.get_x())
+                            disparo.set_y(t2.get_y())
+                            disparo.take_n_pos()
+                            gdisparo.update(0)
+
                             print("POS_DIR: " + str(posicion_disparo))
-                            if posicion_disparo > 0:
-                                print("Se le dio a un tanque")
-                            else:
-                                print("Se le dio a una pared")
+                            tanque_disparador = 2
+                            pos_disparo = "Norte"
+                            pygame.time.set_timer(pygame.USEREVENT - 1, 60)
+
                         elif i2 == "disp_rect(S)":
                             posicion_disparo = lb.dis_rect("Sur", 2)
                             print("POS_DIR: " + str(posicion_disparo))
-                            if posicion_disparo > 0:
-                                print("Se le dio a un tanque")
-                            else:
-                                print("Se le dio a una pared")
+
+                            posicion_disparo = lb.dis_rect("Sur", 2)
+                            g1.update(270)
+                            disparo.set_x(t2.get_x())
+                            disparo.set_y(t2.get_y())
+                            disparo.take_n_pos()
+                            gdisparo.update(180)
+
+                            tanque_disparador = 2
+                            pos_disparo = "Sur"
+                            pygame.time.set_timer(pygame.USEREVENT - 1, 60)
+
                         elif i2 == "disp_rect(E)":
                             posicion_disparo = lb.dis_rect("Este", 2)
                             print("POS_DIR: " + str(posicion_disparo))
-                            if posicion_disparo > 0:
-                                print("Se le dio a un tanque")
-                            else:
-                                print("Se le dio a una pared")
+
+                            posicion_disparo = lb.dis_rect("Este", 2)
+                            g2.update(0)
+                            disparo.set_x(t2.get_x())
+                            disparo.set_y(t2.get_y())
+                            disparo.take_n_pos()
+                            gdisparo.update(270)
+
+                            tanque_disparador = 2
+                            pos_disparo = "Este"
+                            pygame.time.set_timer(pygame.USEREVENT - 1, 60)
+
                         elif i2 == "disp_rect(O)":
                             posicion_disparo = lb.dis_rect("Oeste", 2)
                             print("POS_DIR: " + str(posicion_disparo))
-                            if posicion_disparo > 0:
-                                print("Se le dio a un tanque")
-                            else:
-                                print("Se le dio a una pared")
+
+                            posicion_disparo = lb.dis_rect("Oeste", 2)
+                            g2.update(180)
+                            disparo.set_x(t2.get_x())
+                            disparo.set_y(t2.get_y())
+                            disparo.take_n_pos()
+                            gdisparo.update(90)
+
+                            tanque_disparador = 2
+                            pos_disparo = "Oeste"
+                            pygame.time.set_timer(pygame.USEREVENT - 1, 60)
 
                         elif i2 == "mina()" and lb.config_mina(2):
                             mt2 = True
@@ -1103,25 +1173,38 @@ class MainRun(object):
                 #  Choque con pared
                 elif event.type == (pygame.USEREVENT - 1):
                     disparo.move(pos_disparo)
-                    if disparo.rect.x == tank_2.rect.x and disparo.rect.y == tank_2.rect.y:
-                        disparo.ocultar_bala()
-                        pygame.time.set_timer(pygame.USEREVENT + 7, 45)
+                    if tanque_disparador == 1:
+                        if disparo.rect.x == tank_2.rect.x and disparo.rect.y == tank_2.rect.y:
+                            disparo.ocultar_bala()
+                            pygame.time.set_timer(pygame.USEREVENT + 7, 108)
+                    elif tanque_disparador == 2:
+                        print(disparo.rect.y)
+                        if disparo.rect.x == tank_1.rect.x and disparo.rect.y == tank_1.rect.y:
+                            disparo.ocultar_bala()
+                            pygame.time.set_timer(pygame.USEREVENT + 6, 108)
 
             window.fill(colors.BCK_COLOR)
             board.draw()
             st.draw()
             st.minas_j1_data = str(t1.n_minas)
             st.minas_j2_data = str(t2.n_minas)
+            st.player_1_name = str(self.n1)
+            st.player_2_name = str(self.n2)
             st.player_1_life = str(t1.vida) + "%"
             st.player_2_life = str(t2.vida) + "%"
             st.px1_data = str(radar_px_1)
             st.px2_data = str(radar_px_2)
-            for pp in m2:
-                pp.draw()
+
             g1.draw(window)
             g2.draw(window)
             ge.draw(window)
             gdisparo.draw(window)
+            if t1.vida <= 0:
+                self.draw_ganador(self.n2)
+            if t2.vida <= 0:
+                self.draw_ganador(self.n1)
+            for pp in m2:
+                pp.draw()
             pygame.display.flip()
             pygame.display.update()
             window_clock.tick(60)
