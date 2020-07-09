@@ -1,1 +1,4 @@
 radar(E)
+radar(S)
+mover(N)
+mover(E)

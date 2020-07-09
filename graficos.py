@@ -874,7 +874,6 @@ class MainRun(object):
                     if mt1:
                         mt1 = False
                         pygame.time.set_timer(pygame.USEREVENT + 5, 1)
-
                     if i1 == "mover(E)":
                         tank_1.move("Este")
                         g1.update(0)
